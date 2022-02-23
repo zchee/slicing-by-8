@@ -618,28 +618,39 @@ main (
 	}
 
 	if(p_info->crc_table_status == WARM)
+	{
 		printf("Table Status, WARM\n");
- 	else
+	} else {
 		printf("Table Status, COLD\n");
-	if(p_info->crc_data_status == WARM)
+	}
+	if(p_info->crc_data_status == WARM) {
 		printf("Data Status, WARM\n");
- 	else
+	} else {
 		printf("Data Status, COLD\n");
+	}
 	printf("Number of Iterations, %d\n", p_info->crc_num_of_iterations);
 	printf("Packet Size (bytes), %d\n", p_info->crc_packet_size);
 	if(p_info->crc_iteration_style == CONSTANT)
+	{
 		printf("Iteration Style, CONSTANT\n");
- 	else if(p_info->crc_iteration_style == RANDOM)
+	} else if(p_info->crc_iteration_style == RANDOM)
+	{
 		printf("Iteration Style, RANDOM\n");
-	else
+	} else
+	{
 		printf("Iteration Style, INCREMENTAL\n");
+	}
 	printf("Alignment (bytes), %d\n", p_info->crc_alignment);
 	if(p_info->crc_alignment_style == CONSTANT)
+	{
 		printf("Alignment Style, CONSTANT\n");
- 	else if(p_info->crc_alignment_style == RANDOM)
+	} else if(p_info->crc_alignment_style == RANDOM)
+	{
 		printf("Alignment Style, RANDOM\n");
-	else
+	} else
+	{
 		printf("Alignment Style, INCREMENTAL\n");
+	}
 	printf("\n");
 
 	//we begin with setting the packet size and alignment

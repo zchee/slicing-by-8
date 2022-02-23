@@ -7,6 +7,9 @@
  *
  --*/
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifndef CRC_H_INCLUDED
 #define CRC_H_INCLUDED
 
@@ -85,6 +88,36 @@
 #define	SB1_FILE			"256_table.c"
 
 
+// TODO(zchee): fix clang inlined assembly syntax
+#if defined(__clang__)
+#define CPU_PREFETCH(cache_line)			\
+{ int* address = (int*) (cache_line);		\
+	asm volatile("mov edx, %0\n"   			\
+		"prefetcht0[edx]"					\
+ 		: "=r"(address): "r"(address));		\
+}
+
+#define CPU_GET_CYCLES(low)					\
+{											\
+	asm volatile("rdtsc\n"					\
+		"mov dword ptr [%0], eax"			\
+ 		: "=r"(low): "r"(low));				\
+}
+
+#define CPU_SYNC							\
+{											\
+	asm volatile("mov eax, 0\n"				\
+		"cpuid");							\
+}
+
+#define CPU_CACHE_FLUSH(cache_line)			\
+{ int* address = (int*) (cache_line);		\
+	asm volatile("mov edx, %0\n"			\
+		"clflush[edx]\n"					\
+		"mfence"							\
+ 		: "=r"(address): "r"(address));		\
+}
+#elif defined(__GNUC__)
 #define CPU_PREFETCH(cache_line)			\
 { int* address = (int*) (cache_line);		\
 	_asm mov edx, address					\
@@ -109,6 +142,7 @@
 	_asm clflush[edx]						\
 	_asm mfence								\
 }
+#endif
 
 
 #ifdef __cplusplus
@@ -117,14 +151,22 @@ extern "C"
 #endif	/* __cplusplus */
 
 
-typedef __int8				int8_t;
+typedef __int8_t				int8_t;
+#ifdef uint8_t
 typedef unsigned __int8		uint8_t;
-typedef __int16				int16_t;
+#endif
+typedef __int16_t				int16_t;
+#ifdef uint16_t
 typedef unsigned __int16	uint16_t;
-typedef __int32				int32_t;
+#endif
+typedef __int32_t				int32_t;
+#ifdef uint32_t
 typedef unsigned __int32	uint32_t;
-typedef __int64				int64_t;
+#endif
+typedef __int64_t				int64_t;
+#ifdef uint64_t
 typedef unsigned __int64	uint64_t;
+#endif
 
 /**
 	Defines the boolean type.
@@ -164,7 +206,12 @@ typedef struct crc_test
 
 typedef uint8_t	a_uint8_t[MAX_SLICES];
 
-typedef name_t[MAX_CHARS];
+#define	BOOTSTRAP_MAX_NAME_LEN 128
+#define	BOOTSTRAP_MAX_CMD_LEN 512
+
+typedef char name_t[BOOTSTRAP_MAX_NAME_LEN];
+typedef char cmd_t[BOOTSTRAP_MAX_CMD_LEN];
+typedef name_t *name_array_t;
 
 typedef struct table_gen_info
 {
